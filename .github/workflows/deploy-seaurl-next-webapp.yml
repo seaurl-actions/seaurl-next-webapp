@@ -1,0 +1,47 @@
+name: Deploy OnlyOffice CI
+
+on:
+  workflow_dispatch:
+
+#  push:
+#    branches:
+#      - main
+#    tags:
+#      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Kubernetes (configure kubeconfig)
+      - name: Set up Kubernetes
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      # Step 3: Install Helm
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      # Step 4: Add OnlyOffice Helm repo (if required)
+      - name: Add OnlyOffice Helm repo
+        run: helm repo add onlyoffice https://your-onlyoffice-helm-repo-url
+
+      # Step 5: Update Helm repos
+      - name: Update Helm repos
+        run: helm repo update
+
+      # Step 6: Install OnlyOffice using Helm
+      - name: Install OnlyOffice
+        run: |
+          helm upgrade --install onlyoffice onlyoffice/onlyoffice \
+            --namespace your-namespace \
+            --create-namespace \
+            --set someConfigKey=someValue
